@@ -25,12 +25,55 @@ apicrawler/
 
 ## Getting Started
 
-1. **Configure Settings**: Open `main.go` and update the constants:
-   - `StartURL`: Your target API documentation page.
+1. **Set the crawl target**: Pass the API documentation root via the `--root` flag (required — the program exits with an error if it's omitted).
+2. **Configure other settings** *(optional)*: Open `main.go` and update the constants:
    - `MaxDepth`: Maximum link depth to hop.
    - `Concurrency`: Active parallel network routines.
 
-2. **Run the Project**:
+3. **Run the Project**:
    ```bash
-   go run main.go
+   go run main.go --root https://example.com/api/docs
    ```
+
+## Build and Run
+
+### Run directly (no binary)
+
+```bash
+go run main.go --root https://example.com/api/docs
+```
+
+### Build a binary
+
+```bash
+go build -o apicrawler .
+```
+
+This produces an `apicrawler` executable in the project root. Run it with:
+
+```bash
+./apicrawler --root https://example.com/api/docs
+```
+
+### Cross-compiling
+
+Go's toolchain supports building for other platforms by setting `GOOS`/`GOARCH`, e.g. for Linux from any host:
+
+```bash
+GOOS=linux GOARCH=amd64 go build -o apicrawler-linux-amd64 .
+```
+
+### Verifying the build
+
+```bash
+go vet ./...
+go build ./...
+```
+
+### CLI flags
+
+| Flag     | Required | Description                                    |
+|----------|----------|-------------------------------------------------|
+| `--root` | Yes      | Target API documentation root URL to crawl.     |
+
+`MaxDepth` and `Concurrency` remain hardcoded constants in `main.go` (see [Getting Started](#getting-started)) — rebuild (or `go run`) after changing them, as there's no flag or environment variable for those yet.

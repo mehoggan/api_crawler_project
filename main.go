@@ -2,8 +2,10 @@ package main
 
 import (
 	"crypto/tls"
+	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"time"
 
@@ -11,12 +13,20 @@ import (
 )
 
 const (
-	StartURL    = "https://example.com/api/docs" // Target API documentation root
-	MaxDepth    = 3                               // How deep to follow links
-	Concurrency = 5                               // Number of parallel workers
+	MaxDepth    = 3 // How deep to follow links
+	Concurrency = 5 // Number of parallel workers
 )
 
 func main() {
+	rootURL := flag.String("root", "", "Target API documentation root URL to crawl (required)")
+	flag.Parse()
+
+	if *rootURL == "" {
+		fmt.Fprintln(os.Stderr, "Error: --root is required")
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	// Define patterns: Target issues (e.g., deprecated, legacy, known bug, 4xx/5xx)
 	issueRegex := regexp.MustCompile(`(?i)(deprecated|known issue|security vulnerability|legacy endpoint|todo)`)
 	// Extractor for absolute and relative href links
@@ -31,7 +41,7 @@ func main() {
 	}
 
 	cfg := crawler.Config{
-		StartURL:    StartURL,
+		StartURL:    *rootURL,
 		MaxDepth:    MaxDepth,
 		Concurrency: Concurrency,
 		Client:      client,
@@ -41,6 +51,6 @@ func main() {
 
 	c := crawler.New(cfg)
 
-	fmt.Printf("Starting crawl at: %s\n\n", StartURL)
+	fmt.Printf("Starting crawl at: %s\n\n", *rootURL)
 	c.Start()
 }

@@ -19,7 +19,8 @@ const (
 
 func main() {
 	rootURL := flag.String("root", "", "Target API documentation root URL to crawl (required)")
-	pattern := flag.String("pattern", "", "Custom grep-like regex to search page content for (default: built-in issue keywords). Case-insensitive.")
+	pattern := flag.String("pattern", "", "Custom grep-like regex to search page content for "+
+		"(default: built-in issue keywords). Case-insensitive.")
 	flag.Parse()
 
 	if *rootURL == "" {

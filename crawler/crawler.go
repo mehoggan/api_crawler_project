@@ -94,7 +94,8 @@ func (c *Crawler) crawl(targetURL string, depth int) {
 		}
 
 		resolved := baseURL.ResolveReference(parsedFound)
-		resolved.Fragment = "" // fragments don't change what the server returns; avoid re-crawling the same page per-anchor
+		// Fragments don't change what the server returns; avoid re-crawling the same page per-anchor
+		resolved.Fragment = ""
 		resolvedURL := resolved.String()
 
 		if parsedFound.Host == "" || strings.EqualFold(parsedFound.Host, baseURL.Host) {

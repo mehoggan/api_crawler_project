@@ -17,6 +17,8 @@ func main() {
 		"(default: built-in issue keywords). Case-insensitive.")
 	maxDepth := flag.Int("max-depth", 3, "Maximum link-follow depth (default: 3)")
 	concurrency := flag.Int("concurrency", 5, "Number of parallel workers (default: 5)")
+	contextLines := flag.Int("context-lines", 10,
+		"Lines of context to show above/below a match in the preview (default: 10)")
 	flag.Parse()
 
 	if *rootURL == "" {
@@ -31,6 +33,10 @@ func main() {
 	}
 	if *concurrency < 1 {
 		fmt.Fprintf(os.Stderr, "Error: --concurrency must be >= 1 (got %d)\n", *concurrency)
+		os.Exit(1)
+	}
+	if *contextLines < 0 {
+		fmt.Fprintf(os.Stderr, "Error: --context-lines must be >= 0 (got %d)\n", *contextLines)
 		os.Exit(1)
 	}
 
@@ -58,12 +64,13 @@ func main() {
 	}
 
 	cfg := crawler.Config{
-		StartURL:    *rootURL,
-		MaxDepth:    *maxDepth,
-		Concurrency: *concurrency,
-		Client:      client,
-		IssueRegex:  issueRegex,
-		LinkRegex:   linkRegex,
+		StartURL:     *rootURL,
+		MaxDepth:     *maxDepth,
+		Concurrency:  *concurrency,
+		ContextLines: *contextLines,
+		Client:       client,
+		IssueRegex:   issueRegex,
+		LinkRegex:    linkRegex,
 	}
 
 	c := crawler.New(cfg)

@@ -11,20 +11,26 @@ import (
 	"time"
 )
 
-const (
-	MaxDepth    = 3 // How deep to follow links
-	Concurrency = 5 // Number of parallel workers
-)
-
 func main() {
 	rootURL := flag.String("root", "", "Target API documentation root URL to crawl (required)")
 	pattern := flag.String("pattern", "", "Custom grep-like regex to search page content for "+
 		"(default: built-in issue keywords). Case-insensitive.")
+	maxDepth := flag.Int("max-depth", 3, "Maximum link-follow depth (default: 3)")
+	concurrency := flag.Int("concurrency", 5, "Number of parallel workers (default: 5)")
 	flag.Parse()
 
 	if *rootURL == "" {
 		fmt.Fprintln(os.Stderr, "Error: --root is required")
 		flag.Usage()
+		os.Exit(1)
+	}
+
+	if *maxDepth < 1 {
+		fmt.Fprintf(os.Stderr, "Error: --max-depth must be >= 1 (got %d)\n", *maxDepth)
+		os.Exit(1)
+	}
+	if *concurrency < 1 {
+		fmt.Fprintf(os.Stderr, "Error: --concurrency must be >= 1 (got %d)\n", *concurrency)
 		os.Exit(1)
 	}
 
@@ -53,8 +59,8 @@ func main() {
 
 	cfg := crawler.Config{
 		StartURL:    *rootURL,
-		MaxDepth:    MaxDepth,
-		Concurrency: Concurrency,
+		MaxDepth:    *maxDepth,
+		Concurrency: *concurrency,
 		Client:      client,
 		IssueRegex:  issueRegex,
 		LinkRegex:   linkRegex,

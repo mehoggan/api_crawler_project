@@ -19,6 +19,7 @@ const (
 
 func main() {
 	rootURL := flag.String("root", "", "Target API documentation root URL to crawl (required)")
+	pattern := flag.String("pattern", "", "Custom grep-like regex to search page content for (default: built-in issue keywords). Case-insensitive.")
 	flag.Parse()
 
 	if *rootURL == "" {
@@ -28,7 +29,16 @@ func main() {
 	}
 
 	// Define patterns: Target issues (e.g., deprecated, legacy, known bug, 4xx/5xx)
-	issueRegex := regexp.MustCompile(`(?i)(deprecated|known issue|security vulnerability|legacy endpoint|todo)`)
+	// or, if --pattern is supplied, whatever the caller wants to search for.
+	searchPattern := `(?i)(deprecated|known issue|security vulnerability|legacy endpoint|todo)`
+	if *pattern != "" {
+		searchPattern = "(?i)(" + *pattern + ")"
+	}
+	issueRegex, err := regexp.Compile(searchPattern)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: invalid --pattern regex: %v\n", err)
+		os.Exit(1)
+	}
 	// Extractor for absolute and relative href links
 	linkRegex := regexp.MustCompile(`href="([^"]+)"`)
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"apicrawler/crawler"
 	"crypto/tls"
 	"flag"
 	"fmt"
@@ -8,8 +9,6 @@ import (
 	"os"
 	"regexp"
 	"time"
-
-	"apicrawler/crawler"
 )
 
 const (
@@ -44,6 +43,7 @@ func main() {
 	linkRegex := regexp.MustCompile(`href="([^"]+)"`)
 
 	transport := &http.Transport{
+		//nolint:gosec // Docs crawler intentionally accepts servers with invalid TLS certificates.
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{

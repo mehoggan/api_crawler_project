@@ -1,0 +1,36 @@
+version: "2"
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  # "standard" = errcheck, govet, ineffassign, staticcheck, unused
+  default: standard
+  enable:
+    - bodyclose    # HTTP response bodies must be closed
+    - godot        # comments end in a period
+    - gosec        # security-oriented checks
+    - lll          # max line length (see settings below)
+    - misspell     # common misspellings
+    - nolintlint   # validate //nolint directives
+    - prealloc     # slice preallocation hints
+    - revive       # golign-style rules (naming, exported docs, etc.)
+    - unconvert    # unnecessary type conversions
+    - unparam      # unused function params/results
+    - wastedassign # wasted assignments
+    - whitespace   # no leading/trailing blank lines in blocks
+  settings:
+    lll:
+      line-length: 100
+    nolintlint:
+      require-explanation: true # every //nolint must state why
+      require-specific: true    # must name the linter, e.g. //nolint:gosec
+    revive:
+      severity: warning
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+    - gofumpt

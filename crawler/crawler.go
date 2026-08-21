@@ -1,3 +1,5 @@
+// Package crawler implements a concurrent web crawler that scans API documentation pages
+// for configurable regex patterns and follows same-host links up to a maximum depth.
 package crawler
 
 import (
@@ -10,7 +12,7 @@ import (
 	"sync"
 )
 
-// Config holds the setup variables for the crawler
+// Config holds the setup variables for the crawler.
 type Config struct {
 	StartURL    string
 	MaxDepth    int
@@ -20,7 +22,7 @@ type Config struct {
 	LinkRegex   *regexp.Regexp
 }
 
-// Crawler tracks visited pages and handles sync routines
+// Crawler tracks visited pages and handles sync routines.
 type Crawler struct {
 	cfg     Config
 	visited map[string]bool
@@ -29,7 +31,7 @@ type Crawler struct {
 	sem     chan struct{}
 }
 
-// New initializes a Crawler instance
+// New initializes a Crawler instance.
 func New(cfg Config) *Crawler {
 	return &Crawler{
 		cfg:     cfg,
@@ -38,7 +40,7 @@ func New(cfg Config) *Crawler {
 	}
 }
 
-// Start initiates the recursive concurrent crawling process
+// Start initiates the recursive concurrent crawling process.
 func (c *Crawler) Start() {
 	c.wg.Add(1)
 	go c.crawl(c.cfg.StartURL, 0)
@@ -67,7 +69,7 @@ func (c *Crawler) crawl(targetURL string, depth int) {
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return
